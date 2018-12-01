@@ -4,12 +4,40 @@ import cv2
 import numpy as np
 import random
 from collections import deque
+import os
 
 
 def checkletter(img):
+    imgArr = []
+    alphNameArr = []
+    for file in os.listdir("."):
+        if file.endswith(".png"):
+            a=cv2.imread(os.path.join(".", file),-1)
+            imgArr.append(a)
+            alphNameArr.append(file[0])
 
-    cv2.imwrite("c" + ".png", img)
-    
+
+    corrArr = []
+    for x in imgArr:
+        s = x.shape
+        resizedImg=[]
+        resizedImg = cv2.resize(img, (s[1], s[0]))
+        sqDist = ((abs(x - resizedImg)/255)**2)/resizedImg.size
+        print(sum(sum(sqDist)))
+        cv2.putText(sqDist, str(sum(sum(sqDist))), (10,100), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+        cv2.imshow("crpImg", resizedImg)
+        cv2.imshow("template", x)
+        cv2.imshow("sqD", sqDist)
+        cv2.waitKey(0)
+        cv2.destroyWindow("template")
+        cv2.destroyWindow("crpImg")
+        
+
+
+
+
+
+
     cv2.imshow('croppws', img)
     cv2.waitKey(1)
 
@@ -104,18 +132,19 @@ if __name__ == '__main__':
                 cv2.line(canvas, center_points[i - 1], center_points[i], (255,255,255), 20)
 
 
-        if(counter%200==0):
-            list_center_points = np.asarray(center_points)
-            x,y,w,h=cv2.boundingRect(list_center_points)
-            print(x,y,w,h)
-            print(counter)
-            #print(cv2.convexHull(list(center_points)))
-            # cv2.rectangle(im,(x,y),(x+w,y+h),(0,255,0),2)
-            checkletter(canvas[y-20:y+h+20,x-20:x+w+20])
-            cv2.imshow('compImage', canvas)
-            cv2.waitKey(1)
+        # if(counter%100==0 and len(center_points)>0):
+        #     list_center_points = np.asarray(center_points)
+        #     x,y,w,h=cv2.boundingRect(list_center_points)
+        #     print(x,y,w,h)
+        #     print(counter)
+        #     #print(cv2.convexHull(list(center_points)))
+        #     # cv2.rectangle(im,(x,y),(x+w,y+h),(0,255,0),2)
+        #     canvas_cpy=canvas.copy()
+        #     checkletter(canvas_cpy[y-20:y+h+20,x-20:x+w+20])
+        #     center_points = deque()
             
-            counter=0        
+            
+        #     counter=0        
 
         cv2.imshow('original', frame)
     #     cv2.imshow('mask', mask)
@@ -124,6 +153,19 @@ if __name__ == '__main__':
         k = cv2.waitKey(5) & 0xFF
         if k == 27:
             break
+        elif (k == ord('a')):
+            if(len(center_points)>0):
+                list_center_points = np.asarray(center_points)
+                x,y,w,h=cv2.boundingRect(list_center_points)
+                print(x,y,w,h)
+                print(counter)
+                #print(cv2.convexHull(list(center_points)))
+                # cv2.rectangle(im,(x,y),(x+w,y+h),(0,255,0),2)
+                canvas_cpy=canvas.copy()
+                checkletter(canvas_cpy[y-20:y+h+20,x-20:x+w+20])
+                center_points = deque()
+                counter=0
+
 
     # cv2.destroyAllWindows()
     cap.release()
